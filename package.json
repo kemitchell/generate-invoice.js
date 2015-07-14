@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "bin": "./command-line-interface.js",
   "dependencies": {
-    "@kemitchell/billing-amount": "*",
+    "@kemitchell/billing-amount": "0.1.x",
     "JSONStream": "~1.0.4",
     "format-usd": "~0.2.0",
     "round": "~2.0.0",

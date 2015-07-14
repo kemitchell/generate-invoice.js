@@ -26,6 +26,9 @@ function dateOfEntry(entry) {
 function shortDate(date) {
   return strftime('%B %e', new Date(date)) }
 
+function longDate(date) {
+  return strftime('%B %e, %Y', new Date(date)) }
+
 function narratives(from, through, project) {
   return project.service
     .concat() // shallow copy
@@ -50,18 +53,46 @@ function narratives(from, through, project) {
 function usd(amount) {
   return formatUSD(amount, { decimalPlaces: 0 }) }
 
+function metadataLines(through) {
+  return (
+    [ '---',
+      'number: ',
+      'return: ',
+      'client: ',
+      ( 'through: ' + longDate(through) ),
+      ( 'date: ' + longDate(new Date()) ),
+      '---',
+      '',
+      '' ]
+      .join('\n') ) }
+
 function generateInvoice(from, through, projects) {
-  return projects
-    .sort(function(a, b) {
-      return earliestDate(a.service) - earliestDate(b.service) })
-    .reduce(
-      function(output, project) {
-        return output
-          .concat('# ' + project.project + '\n')
-          .concat(narratives(from, through, project))
-          .concat('--- ' + usd(billingAmount(from, through, project)))
-          .concat('\n') },
-      [])
-    .join('\n') }
+  var total = 0
+  return (
+    metadataLines(through)
+      .concat(
+        projects
+          .sort(function(a, b) {
+            return earliestDate(a.service) - earliestDate(b.service) })
+          .reduce(
+            function(output, project) {
+              var amount = billingAmount(from, through, project)
+              total += amount
+              return output
+                .concat('# ' + project.project + '\n')
+                .concat(narratives(from, through, project))
+                .concat('--- ' + usd(amount))
+                .concat('\n') },
+            [])
+          .concat(
+            [
+              '---',
+              '',
+              ( '**' + usd(total) + ' for this bill; no expenses; no prior amounts due.**' ),
+              ( '**--- ' + usd(total) + ' due**' ),
+              '',
+              '---' ]
+              .join('\n'))
+          .join('\n')) ) }
 
 module.exports = generateInvoice
