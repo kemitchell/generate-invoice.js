@@ -6,6 +6,7 @@
     "@kemitchell/billing-amount": "*",
     "JSONStream": "~1.0.4",
     "format-usd": "~0.2.0",
-    "round": "~2.0.0"
+    "round": "~2.0.0",
+    "strftime": "~0.9.2"
   }
 }
