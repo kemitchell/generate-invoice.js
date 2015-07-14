@@ -1,4 +1,5 @@
 var billingAmount = require('@kemitchell/billing-amount')
+var formatUSD = require('format-usd')
 var round = require('round')
 
 function timeBound(service, selector, context) {
@@ -16,11 +17,8 @@ function timeBound(service, selector, context) {
 function earliestDate(service) {
   return timeBound(service, Math.min, Math) }
 
-function latestDate(service) {
-  return timeBound(service, Math.max, Math) }
-
 function capitalize(narrative) {
-  return narrative[0].toUpperCase() + narrative.slice(1) }
+  return narrative.charAt(0).toUpperCase() + narrative.slice(1) }
 
 function narratives(from, through, project) {
   var sortedService = project.service
@@ -34,20 +32,22 @@ function narratives(from, through, project) {
           Date.parse(service.date) >= from &&
           Date.parse(service.date) <= through ) }
       else {
-        return (
-          earliestDate(project.service) >= from &&
-          latestDate(project.service) <= through ) } })
-    .map(function(service) {
-      return service.narrative })
+        return service.spans
+          .some(function(span) {
+            var start = Date.parse(span.start)
+            return ( start >= from && start <= through ) }) } })
     .reduce(
-      function(a, b) {
-        return a.concat(b) },
+      function(lines, service) {
+        return lines.concat(service.narrative) },
       [])
     .map(capitalize)
     .map(function(string, index, array) {
       return (
         string +
         ( index === array.length - 1 ? '.' : ';' ) ) }) }
+
+function usd(amount) {
+  return formatUSD(amount, { decimalPlaces: 0 }) }
 
 function generateInvoice(from, through, projects) {
   return projects
@@ -58,7 +58,7 @@ function generateInvoice(from, through, projects) {
         return output
           .concat('# ' + project.project + '\n')
           .concat(narratives(from, through, project))
-          .concat('--- $' + billingAmount(from, through, project) + '\n')
+          .concat('--- ' + usd(billingAmount(from, through, project)))
           .concat('\n') },
       [])
     .join('\n') }
