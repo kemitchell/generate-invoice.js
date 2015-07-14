@@ -65,7 +65,7 @@ function metadataLines(through) {
       .join('\n') +
     '\n\n' ) }
 
-function generateInvoice(from, through, projects) {
+function generateBill(from, through, projects) {
   var total = 0
   return (
     metadataLines(through)
@@ -87,11 +87,13 @@ function generateInvoice(from, through, projects) {
             [
               '---',
               '',
-              ( '**' + usd(total) + ' for this bill; no expenses; no prior amounts due.**' ),
+              ( '**' + usd(total) + ' for this bill; ' +
+                'no expenses; ' +
+                'no prior amounts due.**' ),
               ( '**--- ' + usd(total) + ' due**' ),
               '',
               '---' ]
               .join('\n'))
           .join('\n')) ) }
 
-module.exports = generateInvoice
+module.exports = generateBill

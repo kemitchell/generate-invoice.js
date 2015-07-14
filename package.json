@@ -1,8 +1,11 @@
 {
-  "name": "@kemitchell/generate-invoice",
+  "name": "@kemitchell/markdown-bill",
+  "description": "generate Markdown bill from project billing records",
+  "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
+  "license": "Apache-2.0",
   "version": "0.0.0",
   "bin": {
-    "generate-invoice": "./command-line-interface.js"
+    "markdown-bill": "./command-line-interface.js"
   },
   "dependencies": {
     "@kemitchell/billing-amount": "0.1.x",
