@@ -97,7 +97,10 @@ function generateBill(from, through, projects) {
               return output
                 .concat('# ' + project.project + '\n')
                 .concat(narratives(from, through, project))
-                .concat('--- ' + usd(amount))
+                .concat(
+                  ( amount === 0 ?
+                    ( '---\\ rounded\\ off' ) :
+                    ( '---\\ ' + usd(amount) ) ))
                 .concat('\n') },
             [])
           .concat(
