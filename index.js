@@ -1,6 +1,7 @@
 var billingAmount = require('@kemitchell/billing-amount')
 var formatUSD = require('format-usd')
 var strftime = require('strftime')
+  .timezone(new Date().getTimezoneOffset())
 
 function min(array) {
   return Math.min.apply(Math, array) }
