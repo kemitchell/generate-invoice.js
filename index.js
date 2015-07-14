@@ -5,13 +5,13 @@ var strftime = require('strftime')
 function min(array) {
   return Math.min.apply(Math, array) }
 
-function earliestDate(service) {
-  return min(service.map(dateOfEntry)) }
+function earliestDate(project) {
+  return min(project.service.map(dateOfEntry)) }
 
-function capitalize(narrative) {
+function capitalize(string) {
   return (
-    narrative.charAt(0).toUpperCase() +
-    narrative.slice(1) ) }
+    string.charAt(0).toUpperCase() +
+    string.slice(1) ) }
 
 function dateOfEntry(entry) {
   if (entry.date) {
@@ -29,7 +29,8 @@ function longDate(date) {
   return strftime('%B %e, %Y', new Date(date)) }
 
 function narratives(from, through, project) {
-  return project.service
+  return project
+    .service
     .concat() // shallow copy
     .filter(function(entry) {
       var date = dateOfEntry(entry)
@@ -37,11 +38,11 @@ function narratives(from, through, project) {
     .sort(function(a, b) {
       return dateOfEntry(a) - dateOfEntry(b) })
     .reduce(
-      function(lines, service) {
+      function(lines, entry) {
         return lines
-          .concat(shortDate(dateOfEntry(service)) + ':')
+          .concat(shortDate(dateOfEntry(entry)) + ':')
           .concat(
-            service.narrative
+            entry.narrative
             .map(capitalize)
             .map(function(string, index, array) {
               return (
@@ -60,10 +61,9 @@ function metadataLines(through) {
       'client: ',
       ( 'through: ' + longDate(through) ),
       ( 'date: ' + longDate(new Date()) ),
-      '---',
-      '',
-      '' ]
-      .join('\n') ) }
+      '---' ]
+      .join('\n') +
+    '\n\n' ) }
 
 function generateInvoice(from, through, projects) {
   var total = 0
@@ -72,7 +72,7 @@ function generateInvoice(from, through, projects) {
       .concat(
         projects
           .sort(function(a, b) {
-            return earliestDate(a.service) - earliestDate(b.service) })
+            return earliestDate(a) - earliestDate(b) })
           .reduce(
             function(output, project) {
               var amount = billingAmount(from, through, project)
