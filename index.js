@@ -1,3 +1,4 @@
+var billingAmount = require('@kemitchell/billing-amount')
 var round = require('round')
 
 function timeBound(service, selector, context) {
@@ -21,7 +22,7 @@ function latestDate(service) {
 function capitalize(narrative) {
   return narrative[0].toUpperCase() + narrative.slice(1) }
 
-function effort(from, through, project) {
+function narratives(from, through, project) {
   var sortedService = project.service
     .concat() // shallow copy
     .sort(function(a, b) {
@@ -48,60 +49,6 @@ function effort(from, through, project) {
         string +
         ( index === array.length - 1 ? '.' : ';' ) ) }) }
 
-var BILLING_INCREMENT = 15
-var MINUTES_PER_HOUR = 60
-var MILLISECONDS_PER_MINUTE = MINUTES_PER_HOUR * 1000
-
-function add(x, y) { return x + y }
-function subtract(x, y) { return x - y }
-function multiply(x, y) { return x * y }
-function divide(x, y) { return x / y }
-
-function spanAmount(span) {
-  return round(
-    divide(subtract(span.end, span.start), MILLISECONDS_PER_MINUTE)) }
-
-function serviceAmount(service) {
-  if (service.time) {
-    return round.down(multiply(entry.time, entry.rate), 1) }
-  else {
-    return (
-      round.down(
-        multiply(
-          service.rate,
-          divide(
-            round(
-              service.spans.reduce(
-                function(total, span) {
-                  return add(total, spanAmount(span)) },
-                0),
-              BILLING_INCREMENT),
-            MINUTES_PER_HOUR)),
-        1)) } }
-
-function fees(from, through, project) {
-  return project.service
-    .map(function(service) {
-      if (service.date) {
-        return service }
-      else {
-        var copy = JSON.parse(JSON.stringify(service))
-        copy.spans = copy.spans
-          .map(function(span) {
-            var start = Date.parse(span.start)
-            span.start = ( start < from ? from : start )
-            var end = Date.parse(span.end)
-            span.end = ( end > through ? through : end )
-            return span })
-          .filter(function(span) {
-            return span.end > span.start })
-        return copy
-      } })
-    .reduce(
-      function(total, service) {
-        return add(total, serviceAmount(service)) },
-      0) }
-
 function generateInvoice(from, through, projects) {
   return projects
     .sort(function(a, b) {
@@ -110,8 +57,8 @@ function generateInvoice(from, through, projects) {
       function(output, project) {
         return output
           .concat('# ' + project.project + '\n')
-          .concat(effort(from, through, project))
-          .concat('--- $' + fees(from, through, project) + '\n')
+          .concat(narratives(from, through, project))
+          .concat('--- $' + billingAmount(from, through, project) + '\n')
           .concat('\n') },
       [])
     .join('\n') }
