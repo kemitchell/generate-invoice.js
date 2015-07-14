@@ -1,6 +1,5 @@
 var billingAmount = require('@kemitchell/billing-amount')
 var formatUSD = require('format-usd')
-var round = require('round')
 var strftime = require('strftime')
 
 function min(array) {
