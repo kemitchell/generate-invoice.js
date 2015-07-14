@@ -110,7 +110,7 @@ function generateBill(from, through, projects) {
               ( '**' + usd(total) + ' for this bill; ' +
                 'no expenses; ' +
                 'no prior amounts due.**' ),
-              ( '**--- ' + usd(total) + ' due**' ),
+              ( '**---\\ ' + usd(total) + '\\ now\\ due**' ),
               '',
               '---' ]
               .join('\n'))
