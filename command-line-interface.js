@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var generateInvoice = require('./')
+var markdownBill = require('./')
 var JSONStream = require('JSONStream')
 
 if (process.argv.length < 4) {
@@ -17,4 +17,4 @@ process.stdin
     if (chunk) {
       projects.push(chunk) } })
   .on('end', function() {
-    console.log(generateInvoice(from, through, projects)) })
+    console.log(markdownBill(from, through, projects)) })
