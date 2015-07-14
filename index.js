@@ -2,40 +2,34 @@ var billingAmount = require('@kemitchell/billing-amount')
 var formatUSD = require('format-usd')
 var round = require('round')
 
-function timeBound(service, selector, context) {
-  var serviceDates = service
-    .map(function(service) {
-      if (service.date) {
-        return Date.parse(service.date) }
-      else {
-        return selector.apply(
-          context, 
-          service.spans.map(function(span) {
-            return Date.parse(span.start) })) } })
-  return selector.apply(context, serviceDates) }
+function min(array) {
+  return Math.min.apply(Math, array) }
 
 function earliestDate(service) {
-  return timeBound(service, Math.min, Math) }
+  return min(service.map(dateOfEntry)) }
 
 function capitalize(narrative) {
-  return narrative.charAt(0).toUpperCase() + narrative.slice(1) }
+  return (
+    narrative.charAt(0).toUpperCase() +
+    narrative.slice(1) ) }
+
+function dateOfEntry(entry) {
+  if (entry.date) {
+    return Date.parse(entry.date) }
+  else {
+    return min(
+      entry.spans
+        .map(function(span) {
+          return Date.parse(span.start) })) } }
 
 function narratives(from, through, project) {
-  var sortedService = project.service
+  return project.service
     .concat() // shallow copy
+    .filter(function(entry) {
+      var date = dateOfEntry(entry)
+      return ( date >= from && date <= through ) })
     .sort(function(a, b) {
-      return earliestDate([a]) - earliestDate([b]) })
-  return sortedService
-    .filter(function(service) {
-      if (service.date) {
-        return (
-          Date.parse(service.date) >= from &&
-          Date.parse(service.date) <= through ) }
-      else {
-        return service.spans
-          .some(function(span) {
-            var start = Date.parse(span.start)
-            return ( start >= from && start <= through ) }) } })
+      return dateOfEntry(a) - dateOfEntry(b) })
     .reduce(
       function(lines, service) {
         return lines.concat(service.narrative) },
